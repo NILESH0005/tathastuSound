@@ -1,34 +1,80 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+@import "swiper/css/zoom";
 
-@layer utilities {
-      .no-scrollbar::-webkit-scrollbar {
-          /* display: none; */
-          scrollbar-width: 5px;  /* Firefox */
-      }
-      .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: 5px;  /* Firefox */
-          /* scrollbar-width: none;  Firefox */
-    }
-    .two-h-screen{
-        height: 150vh;
-    }
-  }
-
-  
-
-  .hljs-keyword{color: green !important;}
-
-
-.ql-blockquote{
-    display: none !important;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.ql-formula{
-    display: none !important;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
-.ql-clean{
-    display: none !important;
+.my-masonry-grid {
+  display: flex;
+  margin-left: -15px;
+}
+.my-masonry-grid_column {
+  padding-left: 15px;
+}
+
+.img-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.img-card:hover img {
+  transform: scale(1.05);
+}
+
+.caption-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 6px;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.img-card:hover .caption-overlay {
+  opacity: 1;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 9999;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-size: 40px;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.download-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.7);
+  padding: 10px;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
 }
