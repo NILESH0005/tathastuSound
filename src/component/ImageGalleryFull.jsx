@@ -7,7 +7,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Zoom } from "swiper/modules";
 
-import { FaTimes, FaDownload, FaChevronDown } from "react-icons/fa";
+import { FaTimes, FaDownload, FaChevronDown, FaPlay, FaVideo } from "react-icons/fa";
 
 // CSS imports
 import "swiper/css";
@@ -17,6 +17,131 @@ import "swiper/css/zoom";
 
 import "react-lazy-load-image-component/src/effects/blur.css";
 
+// HEIC converter component
+const HEICImage = ({ src, alt, className, ...props }) => {
+  const [convertedSrc, setConvertedSrc] = useState(src);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const convertHEIC = async () => {
+      if (src.toLowerCase().endsWith('.heic')) {
+        try {
+          // Dynamically import heic2any only when needed
+          const heic2any = (await import('heic2any')).default;
+          
+          const response = await fetch(src);
+          const blob = await response.blob();
+          
+          const conversionResult = await heic2any({
+            blob: blob,
+            toType: 'image/jpeg',
+            quality: 0.8
+          });
+          
+          const url = URL.createObjectURL(conversionResult);
+          setConvertedSrc(url);
+        } catch (err) {
+          console.error('Failed to convert HEIC:', err);
+          setError(true);
+        }
+      }
+    };
+
+    convertHEIC();
+  }, [src]);
+
+  if (error) {
+    return (
+      <div className={`${className} bg-gray-200 flex items-center justify-center`} {...props}>
+        <span className="text-gray-500">Failed to load image</span>
+      </div>
+    );
+  }
+
+  return (
+    <LazyLoadImage
+      src={convertedSrc}
+      alt={alt}
+      className={className}
+      {...props}
+    />
+  );
+};
+
+// Video Player Component
+const VideoPlayer = ({ src, className, thumbnail, ...props }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showThumbnail, setShowThumbnail] = useState(true);
+
+  if (!src.toLowerCase().endsWith('.mp4')) {
+    return (
+      <div className={`${className} bg-gray-200 flex items-center justify-center`}>
+        <span className="text-gray-500">Invalid video format</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      {showThumbnail && (
+        <div 
+          className={`${className} relative cursor-pointer`}
+          onClick={() => {
+            setIsPlaying(true);
+            setShowThumbnail(false);
+          }}
+        >
+          {thumbnail ? (
+            <LazyLoadImage
+              src={thumbnail}
+              alt="Video thumbnail"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <FaVideo className="text-white text-4xl" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
+              <FaPlay className="text-white text-2xl ml-1" />
+            </div>
+          </div>
+          <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+            <FaVideo size={10} /> MP4
+          </div>
+        </div>
+      )}
+      
+      {isPlaying && (
+        <div className={`${className} relative`}>
+          <video
+            src={src}
+            className="w-full h-full object-cover rounded-lg"
+            controls
+            autoPlay
+            playsInline
+            onEnded={() => {
+              setIsPlaying(false);
+              setShowThumbnail(true);
+            }}
+          />
+          <button
+            onClick={() => {
+              setIsPlaying(false);
+              setShowThumbnail(true);
+            }}
+            className="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full hover:bg-black/80 transition-colors"
+          >
+            <FaTimes size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main Gallery Component
 export default function ImageGalleryFull() {
   const [gallery, setGallery] = useState({});
   const [filter, setFilter] = useState("all");
@@ -24,30 +149,58 @@ export default function ImageGalleryFull() {
   const [zoomIndex, setZoomIndex] = useState(0);
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [folderLogos, setFolderLogos] = useState({});
+  const [mediaTypes, setMediaTypes] = useState({}); // Track if item is image or video
 
   useEffect(() => {
     const galleryData = importAllImages();
-    setGallery(galleryData);
-
-    // Extract logo images from each folder
+    
+    // Process gallery data to identify media types
+    const processedGallery = {};
+    const mediaTypeMap = {};
     const logos = {};
+
     Object.keys(galleryData).forEach((folder) => {
+      processedGallery[folder] = [];
+      mediaTypeMap[folder] = [];
+      
+      // Find logo first
       const logoImage = galleryData[folder].find(
         (img) =>
           img.src.includes("logo.png") ||
           img.src.includes("logo.jpg") ||
           img.src.includes("logo.")
       );
+      
       if (logoImage) {
         logos[folder] = logoImage.src;
-        // Remove logo from gallery images
-        galleryData[folder] = galleryData[folder].filter(
-          (img) => img !== logoImage
-        );
       }
+
+      // Process each media item
+      galleryData[folder].forEach((item) => {
+        // Skip logo images
+        if (item === logoImage) return;
+
+        const src = item.src || item;
+        const lowercaseSrc = src.toLowerCase();
+        
+        processedGallery[folder].push(item);
+        
+        // Determine media type
+        if (lowercaseSrc.endsWith('.mp4') || lowercaseSrc.includes('video/')) {
+          mediaTypeMap[folder].push('video');
+        } else if (lowercaseSrc.endsWith('.heic') || lowercaseSrc.includes('image/heic')) {
+          mediaTypeMap[folder].push('heic');
+        } else if (lowercaseSrc.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/)) {
+          mediaTypeMap[folder].push('image');
+        } else {
+          mediaTypeMap[folder].push('unknown');
+        }
+      });
     });
+
+    setGallery(processedGallery);
     setFolderLogos(logos);
-    setGallery(galleryData);
+    setMediaTypes(mediaTypeMap);
 
     document.addEventListener("contextmenu", (e) => e.preventDefault());
   }, []);
@@ -84,21 +237,86 @@ export default function ImageGalleryFull() {
     setExpandedFolders(newExpanded);
   };
 
-  // Mock event dates for timeline
-  const eventDates = {
-    "Event 1": "2023-12-15",
-    "Event 2": "2023-11-20",
-    "Event 3": "2023-10-10",
-    "Event 4": "2023-09-05",
+  // Function to get thumbnail for video
+  const getVideoThumbnail = (src) => {
+    // You can implement video thumbnail generation here
+    // For now, return null or a placeholder
+    return null;
   };
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  // Render appropriate media component
+  const renderMediaItem = (folder, item, index) => {
+    const src = item.src || item;
+    const lowercaseSrc = src.toLowerCase();
+    const mediaType = mediaTypes[folder]?.[index];
+    
+    const commonProps = {
+      key: index,
+      className: "w-full h-auto transition-transform duration-500 group-hover:scale-105",
+      style: { borderRadius: 12 }
+    };
+
+    if (mediaType === 'video') {
+      return (
+        <VideoPlayer
+          src={src}
+          thumbnail={item.thumbnail || getVideoThumbnail(src)}
+          {...commonProps}
+        />
+      );
+    } else if (mediaType === 'heic') {
+      return (
+        <HEICImage
+          src={src}
+          alt=""
+          {...commonProps}
+        />
+      );
+    } else {
+      return (
+        <LazyLoadImage
+          src={src}
+          effect="blur"
+          alt=""
+          {...commonProps}
+        />
+      );
+    }
+  };
+
+  // Render lightbox content
+  const renderLightboxContent = (src, mediaType) => {
+    const lowercaseSrc = src.toLowerCase();
+    
+    if (mediaType === 'video') {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center">
+          <video
+            src={src}
+            className="max-h-full max-w-full object-contain rounded-lg"
+            controls
+            autoPlay
+            playsInline
+          />
+        </div>
+      );
+    } else if (mediaType === 'heic') {
+      return (
+        <img
+          src={src}
+          alt=""
+          className="max-h-full max-w-full object-contain rounded-lg"
+        />
+      );
+    } else {
+      return (
+        <img
+          src={src}
+          alt=""
+          className="max-h-full max-w-full object-contain rounded-lg"
+        />
+      );
+    }
   };
 
   return (
@@ -107,10 +325,10 @@ export default function ImageGalleryFull() {
       <header className="max-w-7xl mx-auto mb-12 text-center">
         <div className="bg-gradient-to-r from-slate-800 to-slate-600 rounded-2xl p-8 shadow-2xl backdrop-blur-sm bg-white/10 border border-white/20">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-poppins">
-            Event Photo Gallery
+            Event Media Gallery
           </h1>
           <p className="text-slate-200 text-lg md:text-xl font-light">
-            View memories from all events
+            View photos and videos from all events
           </p>
         </div>
       </header>
@@ -190,7 +408,7 @@ export default function ImageGalleryFull() {
                       className="my-masonry-grid"
                       columnClassName="my-masonry-grid_column"
                     >
-                      {filteredImages(folder)?.map((img, index) => (
+                      {filteredImages(folder)?.map((item, index) => (
                         <div
                           key={index}
                           className="image-card group relative rounded-xl overflow-hidden cursor-pointer mb-4 shadow-md hover:shadow-2xl transition-all duration-300"
@@ -199,15 +417,18 @@ export default function ImageGalleryFull() {
                             setZoomIndex(index);
                           }}
                         >
-                          <LazyLoadImage
-                            src={img.src}
-                            effect="blur"
-                            alt=""
-                            className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                            style={{
-                              borderRadius: 12,
-                            }}
-                          />
+                          {renderMediaItem(folder, item, index)}
+                          {/* Media Type Badge */}
+                          {mediaTypes[folder]?.[index] === 'video' && (
+                            <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                              <FaVideo size={10} /> MP4
+                            </div>
+                          )}
+                          {mediaTypes[folder]?.[index] === 'heic' && (
+                            <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+                              HEIC
+                            </div>
+                          )}
                         </div>
                       ))}
                     </Masonry>
@@ -247,29 +468,44 @@ export default function ImageGalleryFull() {
                 modules={[Navigation, Pagination, Zoom]}
                 className="h-full"
               >
-                {gallery[zoomFolder].map((img, idx) => (
-                  <SwiperSlide key={idx}>
-                    <div className="swiper-zoom-container flex items-center justify-center h-full">
-                      <img
-                        src={img.src}
-                        alt=""
-                        className="max-h-full max-w-full object-contain rounded-lg"
-                      />
-
-                      {/* Download Button */}
-                      <a
-                        href={img.src}
-                        download
-                        className="absolute bottom-6 right-6 glass-card rounded-full p-4 hover:bg-white/20 transition-all duration-300 group"
-                      >
-                        <FaDownload
-                          size={20}
-                          className="text-white group-hover:text-slate-300 transition-colors"
-                        />
-                      </a>
-                    </div>
-                  </SwiperSlide>
-                ))}
+                {gallery[zoomFolder].map((item, idx) => {
+                  const src = item.src || item;
+                  const mediaType = mediaTypes[zoomFolder]?.[idx];
+                  
+                  return (
+                    <SwiperSlide key={idx}>
+                      <div className="swiper-zoom-container flex items-center justify-center h-full">
+                        {renderLightboxContent(src, mediaType)}
+                        
+                        {/* Download Button - Only for images */}
+                        {mediaType !== 'video' && (
+                          <a
+                            href={src}
+                            download
+                            className="absolute bottom-6 right-6 glass-card rounded-full p-4 hover:bg-white/20 transition-all duration-300 group"
+                          >
+                            <FaDownload
+                              size={20}
+                              className="text-white group-hover:text-slate-300 transition-colors"
+                            />
+                          </a>
+                        )}
+                        
+                        {/* Media Type Indicator */}
+                        <div className="absolute top-6 left-6 glass-card rounded-lg px-3 py-2">
+                          {mediaType === 'video' && (
+                            <div className="text-white flex items-center gap-2">
+                              <FaVideo size={16} /> Video
+                            </div>
+                          )}
+                          {mediaType === 'heic' && (
+                            <div className="text-white">HEIC Image</div>
+                          )}
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
               </Swiper>
 
               {/* Custom Navigation Arrows */}
