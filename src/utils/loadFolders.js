@@ -3,7 +3,7 @@ export function importAllImages() {
   try {
     // 1) Import all IMAGES from gallery and its subfolders
     const imageModules = import.meta.glob(
-      "../assets/gallery/**/*.{png,jpg,jpeg,gif}",
+      "../assets/gallery/**/*.{png,jpg,jpeg,gif,webp}",
       { eager: true }
     );
 

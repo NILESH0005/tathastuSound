@@ -32,20 +32,26 @@ export default function ImageGalleryFull() {
     // Extract logo images from each folder
     const logos = {};
     Object.keys(galleryData).forEach((folder) => {
-      const logoImage = galleryData[folder].find(
-        (img) =>
-          img.src.includes("logo.png") ||
-          img.src.includes("logo.jpg") ||
-          img.src.includes("logo.")
-      );
-      if (logoImage) {
-        logos[folder] = logoImage.src;
-        // Remove logo from gallery images
-        galleryData[folder] = galleryData[folder].filter(
-          (img) => img !== logoImage
-        );
-      }
-    });
+  const logoImage = galleryData[folder].find((img) => {
+    const file = img.src.toLowerCase();
+    return (
+      file.endsWith("logo.png") ||
+      file.endsWith("logo.jpg") ||
+      file.endsWith("logo.jpeg") ||
+      file.endsWith("logo.webp")
+    );
+  });
+
+  if (logoImage) {
+    logos[folder] = logoImage.src;
+
+    // Remove logo from gallery list
+    galleryData[folder] = galleryData[folder].filter(
+      (img) => img !== logoImage
+    );
+  }
+});
+
     setFolderLogos(logos);
     setGallery(galleryData);
 
@@ -84,13 +90,7 @@ export default function ImageGalleryFull() {
     setExpandedFolders(newExpanded);
   };
 
-  // Mock event dates for timeline
-  const eventDates = {
-    "Event 1": "2023-12-15",
-    "Event 2": "2023-11-20",
-    "Event 3": "2023-10-10",
-    "Event 4": "2023-09-05",
-  };
+
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -136,9 +136,8 @@ export default function ImageGalleryFull() {
               </div>
 
               <div
-                className={`glass-card rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ml-12 ${
-                  expandedFolders.has(folder) ? "bg-white/30" : ""
-                }`}
+                className={`glass-card rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ml-12 ${expandedFolders.has(folder) ? "bg-white/30" : ""
+                  }`}
               >
                 {/* Folder Header */}
                 <div
@@ -176,9 +175,8 @@ export default function ImageGalleryFull() {
                     </div>
                   </div>
                   <FaChevronDown
-                    className={`text-slate-400 transition-transform duration-300 ${
-                      expandedFolders.has(folder) ? "rotate-180" : ""
-                    }`}
+                    className={`text-slate-400 transition-transform duration-300 ${expandedFolders.has(folder) ? "rotate-180" : ""
+                      }`}
                   />
                 </div>
 

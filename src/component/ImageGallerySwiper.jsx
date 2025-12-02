@@ -34,7 +34,9 @@ export default function ImageGallerySwiper() {
           img.includes("logo.jpg") ||
           img.includes("logo.jpeg") ||
           img.includes("logo.svg") ||
-          img.includes("logo.webp")
+          img.includes("logo.webp") ||
+          img.includes("logo.") 
+
       );
 
       if (logoImage) {
