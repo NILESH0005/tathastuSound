@@ -3,3 +3,6 @@ dist/
 .env
 *.log
 dist.zip
+assets/
+dist.tar.gz
+dist.rar
