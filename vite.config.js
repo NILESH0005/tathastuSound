@@ -4,9 +4,18 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  
-  // IMPORTANT: must match your IIS folder name
+
+  // Your hosting base
   base: "/GIPhotoGallery/",
-  
-  assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf"],
+
+  // MUST add these or Vite will try to parse .heic like JS
+  assetsInclude: [
+    "**/*.heic",
+    "**/*.HEIC",
+    "**/*.heif",
+    "**/*.HEIF",
+    "**/*.woff",
+    "**/*.woff2",
+    "**/*.ttf"
+  ],
 });

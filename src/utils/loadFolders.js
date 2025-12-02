@@ -1,22 +1,21 @@
-// Vite-compatible dynamic importer for images + JSON metadata
-export function importAllImages() {
+// utils/loadFolders.js
+import heic2any from "heic2any";
+
+export async function importAllImages() {
   try {
-    // 1) Import all IMAGES from gallery and its subfolders
-    const imageModules = import.meta.glob(
-      "../assets/gallery/**/*.{png,jpg,jpeg,gif}",
+    // Import all media files
+    const mediaModules = import.meta.glob(
+      "../assets/gallery/**/*.{png,jpg,jpeg,gif,webp,mp4,heic,heif}",
       { eager: true }
     );
 
-    // 2) Import all JSON metadata files
-    const jsonModules = import.meta.glob(
-      "../assets/gallery/**/*.json",
-      { eager: true }
-    );
+    const jsonModules = import.meta.glob("../assets/gallery/**/*.json", {
+      eager: true,
+    });
 
     const gallery = {};
 
-    // Loop through all image paths
-    for (const path in imageModules) {
+    for (const path in mediaModules) {
       const fileName = path.split("/").pop();
       const folder = path.split("/assets/gallery/")[1].split("/")[0];
 
@@ -24,15 +23,35 @@ export function importAllImages() {
 
       let meta = { caption: "", tags: [] };
 
-      // Expected JSON path (same name but .json)
       const expectedJsonPath = path.replace(/\.\w+$/, ".json");
-
       if (jsonModules[expectedJsonPath]) {
         meta = jsonModules[expectedJsonPath];
       }
 
+      const ext = fileName.split(".").pop().toLowerCase();
+      let type = ext === "mp4" ? "video" : "image";
+      let src = mediaModules[path].default;
+
+      // Convert HEIC / HEIF → JPEG
+      if (["heic", "heif"].includes(ext)) {
+        try {
+          const blob = await fetch(src).then((r) => r.blob());
+
+          const converted = await heic2any({
+            blob,
+            toType: "image/jpeg",
+            quality: 0.9,
+          });
+
+          src = URL.createObjectURL(converted);
+        } catch (err) {
+          console.error("HEIC conversion failed:", err);
+        }
+      }
+
       gallery[folder].push({
-        src: imageModules[path].default,
+        type,
+        src,
         caption: meta.caption,
         tags: meta.tags,
       });
@@ -40,7 +59,7 @@ export function importAllImages() {
 
     return gallery;
   } catch (error) {
-    console.error("Error importing images:", error);
+    console.error("Error loading gallery:", error);
     return {};
   }
 }

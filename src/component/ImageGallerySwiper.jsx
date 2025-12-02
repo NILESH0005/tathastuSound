@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { importAllFolders } from "../utils/loadFolders";
+import { importAllImages } from "../utils/loadFolders";
 
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -21,32 +21,35 @@ export default function ImageGallerySwiper() {
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [folderLogos, setFolderLogos] = useState({});
 
+  // Load all images and convert HEIC → JPEG in loader
   useEffect(() => {
-    const data = importAllFolders();
-    const logos = {};
-    const filteredData = {};
+    (async () => {
+      const data = await importAllImages();
 
-    // Extract logos
-    Object.keys(data).forEach((folder) => {
-      const logoImage = data[folder].find(
-        (img) =>
-          img.includes("logo.png") ||
-          img.includes("logo.jpg") ||
-          img.includes("logo.jpeg") ||
-          img.includes("logo.svg") ||
-          img.includes("logo.webp")
-      );
+      const logos = {};
+      const filteredData = {};
 
-      if (logoImage) {
-        logos[folder] = logoImage;
-        filteredData[folder] = data[folder].filter((img) => img !== logoImage);
-      } else {
-        filteredData[folder] = data[folder];
-      }
-    });
+      Object.keys(data).forEach((folder) => {
+        const logoImage = data[folder].find(
+          (img) =>
+            img.src.includes("logo.png") ||
+            img.src.includes("logo.jpg") ||
+            img.src.includes("logo.jpeg") ||
+            img.src.includes("logo.svg") ||
+            img.src.includes("logo.webp")
+        );
 
-    setFolderLogos(logos);
-    setGallery(filteredData);
+        if (logoImage) {
+          logos[folder] = logoImage.src;
+          filteredData[folder] = data[folder].filter((img) => img !== logoImage);
+        } else {
+          filteredData[folder] = data[folder];
+        }
+      });
+
+      setFolderLogos(logos);
+      setGallery(filteredData);
+    })();
   }, []);
 
   const toggleFolder = (folder) => {
@@ -70,107 +73,86 @@ export default function ImageGallerySwiper() {
       </header>
 
       <div className="max-w-7xl mx-auto">
-        {/* Timeline Container */}
         <div className="relative">
-
-          {/* Single Vertical Timeline Line */}
+          {/* Timeline Line */}
           <div className="absolute left-4 sm:left-6 md:left-[24px] top-0 bottom-0 w-0.5 sm:w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
 
           {/* Folders */}
           {Object.keys(gallery).map((folder, index) => (
             <div key={folder} className="relative mb-8 sm:mb-10">
-
-              {/* Card */}
               <div
                 className={`glass-card rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ml-12 sm:ml-16 md:ml-20 ${
                   expandedFolders.has(folder) ? "bg-white/30" : ""
                 }`}
               >
-                {/* Header */}
+                {/* Folder Header */}
                 <div
                   className="p-4 sm:p-6 cursor-pointer flex items-center justify-between hover:bg-white/20 transition-all duration-200 rounded-xl sm:rounded-2xl"
                   onClick={() => toggleFolder(folder)}
                 >
-                  {/* Left Block (Timeline Node + Logo + Title) */}
                   <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-
-                    {/* Timeline Node */}
+                    {/* Timeline Dot */}
                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 sm:border-4 border-white shadow-md flex-shrink-0"></div>
 
-                    {/* Logo Container - Fixed Size */}
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl overflow-hidden shadow-md border-2 border-white bg-white">
-                        {folderLogos[folder] ? (
-                          <LazyLoadImage
-                            src={folderLogos[folder]}
-                            effect="blur"
-                            alt={`${folder} logo`}
-                            className="w-full h-full object-contain p-1"
-                            width="100%"
-                            height="100%"
-                          />
-                        ) : (
-                          <div className="w-full h-full rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center">
-                            <span className="text-white font-bold text-xs sm:text-sm">
-                              {folder.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    {/* Folder Logo */}
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border-2 border-white bg-white shadow-md">
+                      {folderLogos[folder] ? (
+                        <LazyLoadImage
+                          src={folderLogos[folder]}
+                          effect="blur"
+                          alt={`${folder} logo`}
+                          className="w-full h-full object-contain p-1"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center text-white font-bold">
+                          {folder.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Title and Status */}
+                    {/* Folder Title */}
                     <div className="min-w-0 flex-1">
                       <h3 className="text-lg sm:text-xl font-semibold text-slate-800 font-inter truncate">
-                        {folder.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        {folder.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                       </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <div className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium inline-block">
-                          Completed
-                        </div>
-                        <span className="text-xs text-slate-500 font-medium">
-                          {gallery[folder]?.length || 0} photos
-                        </span>
-                      </div>
+                      <span className="text-xs text-slate-500 font-medium">
+                        {gallery[folder]?.length || 0} photos
+                      </span>
                     </div>
                   </div>
 
-                  {/* Arrow */}
                   <FaChevronDown
-                    className={`text-slate-400 transition-transform duration-300 flex-shrink-0 ml-2 ${
+                    className={`text-slate-400 transition-transform duration-300 ${
                       expandedFolders.has(folder) ? "rotate-180" : ""
                     }`}
                     size={16}
                   />
                 </div>
 
-                {/* Image Grid */}
+                {/* Grid of Images */}
                 {expandedFolders.has(folder) && (
                   <div className="px-4 sm:px-6 pb-4 sm:pb-6 animate-fade-in">
-                    <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                       {gallery[folder].map((img, index) => (
                         <div
                           key={index}
-                          className="image-card group relative rounded-lg sm:rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 aspect-square"
+                          className="image-card group relative rounded-lg overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 aspect-square"
                           onClick={() => {
                             setZoomFolder(folder);
                             setZoomIndex(index);
                           }}
                         >
                           <LazyLoadImage
-                            src={img}
+                            src={img.src}
                             effect="blur"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             alt={`${folder} image ${index + 1}`}
-                            placeholderSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
                           />
-                          
-                          {/* Overlay */}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 rounded-lg sm:rounded-xl"></div>
-                          
-                          {/* View Indicator */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="bg-black/50 text-white px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm">
+
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="bg-black/50 text-white px-3 py-2 rounded-lg text-sm backdrop-blur-sm">
                               View
                             </div>
                           </div>
@@ -184,79 +166,56 @@ export default function ImageGallerySwiper() {
           ))}
         </div>
 
-        {/* Lightbox */}
+        {/* Lightbox Modal */}
         {zoomFolder !== null && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center animate-fade-in">
             {/* Close Button */}
             <button
               onClick={() => setZoomFolder(null)}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 text-white hover:text-slate-300 transition-colors duration-200 cursor-pointer glass-card rounded-full p-2 sm:p-3 hover:bg-white/20 backdrop-blur-sm border border-white/20"
-              aria-label="Close lightbox"
+              className="absolute top-6 right-6 p-3 rounded-full glass-card hover:bg-white/20"
             >
-              <FaTimes size={20} className="sm:w-6 sm:h-6" />
+              <FaTimes size={24} className="text-white" />
             </button>
 
-            {/* Folder Title */}
-            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
-              <h2 className="text-white text-lg sm:text-xl font-semibold font-inter bg-black/30 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
-                {zoomFolder.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </h2>
-            </div>
-
-            {/* Swiper Container */}
-            <div className="w-full h-full max-w-6xl mx-auto px-4 py-16 sm:py-20">
+            {/* Swiper Viewer */}
+            <div className="w-full h-full max-w-6xl mx-auto px-4 py-20">
               <Swiper
                 initialSlide={zoomIndex}
                 navigation={{
                   nextEl: ".swiper-button-next",
                   prevEl: ".swiper-button-prev",
                 }}
-                pagination={{
-                  clickable: true,
-                  type: "fraction",
-                  el: ".swiper-pagination",
-                  renderFraction: function (currentClass, totalClass) {
-                    return `<span class="${currentClass}"></span> / <span class="${totalClass}"></span>`;
-                  }
-                }}
-                zoom={{
-                  maxRatio: 3,
-                  minRatio: 1
-                }}
+                pagination={{ type: "fraction", clickable: true }}
+                zoom
                 modules={[Navigation, Pagination, Zoom]}
-                className="h-full w-full"
+                className="h-full"
               >
-                {gallery[zoomFolder].map((src, idx) => (
+                {gallery[zoomFolder].map((img, idx) => (
                   <SwiperSlide key={idx}>
-                    <div className="swiper-zoom-container flex items-center justify-center h-full w-full">
+                    <div className="swiper-zoom-container flex items-center justify-center h-full">
                       <img
-                        src={src}
-                        alt={`${zoomFolder} image ${idx + 1}`}
+                        src={img.src}
+                        alt=""
                         className="max-h-full max-w-full object-contain rounded-lg"
-                        loading="eager"
                       />
                     </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
 
-              {/* Custom Navigation Buttons */}
-              <div className="swiper-button-prev !text-white !w-10 !h-10 sm:!w-12 sm:!h-12 after:!text-lg glass-card rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/20"></div>
-              <div className="swiper-button-next !text-white !w-10 !h-10 sm:!w-12 sm:!h-12 after:!text-lg glass-card rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/20"></div>
-              
-              {/* Custom Pagination */}
-              <div className="swiper-pagination !bottom-2 !text-white !font-medium"></div>
+              <div className="swiper-button-prev !text-white glass-card rounded-full"></div>
+              <div className="swiper-button-next !text-white glass-card rounded-full"></div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Custom Styles */}
+      {/* Extra CSS */}
       <style jsx>{`
         .glass-card {
-          background: rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         @keyframes fade-in {
@@ -272,57 +231,6 @@ export default function ImageGallerySwiper() {
 
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
-        }
-
-        .image-card {
-          transition: all 0.3s ease;
-        }
-
-        /* Custom scrollbar for webkit browsers */
-        ::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(0, 0, 0, 0.3);
-        }
-      `}</style>
-
-      {/* Swiper Styles */}
-      <style jsx global>{`
-        .swiper-pagination-fraction {
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
-          padding: 8px 16px;
-          width: auto;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        @media (max-width: 640px) {
-          .swiper-pagination-fraction {
-            font-size: 12px;
-            padding: 6px 12px;
-          }
-        }
-
-        .swiper-button-disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
         }
       `}</style>
     </div>
