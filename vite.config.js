@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
 
   // Your hosting base
-  base: "/GIPhotoGallery/",
+  base: "./",
 
   // MUST add these or Vite will try to parse .heic like JS
   assetsInclude: [
