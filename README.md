@@ -9,3 +9,4 @@ Currently, two official plugins are available:
 # Promotional-Page
 # Photo-Gallery-Page
 # Photo-Gallery-Page
+# tathastuSound
