@@ -47,7 +47,6 @@ export default function VideoSection() {
     return () => observer.disconnect();
   }, []);
 
-  // 🔊 Toggle mute per video
   const toggleMute = (index) => {
     const video = videoRefs.current[index];
     if (!video) return;
@@ -62,7 +61,6 @@ export default function VideoSection() {
 
   return (
     <section className="w-full min-h-screen bg-black py-20 px-6 md:px-20">
-      {/* Section Header */}
       <div className="text-center mb-14">
         <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-white to-blue-400 bg-clip-text text-transparent">
           Our Live Moments
@@ -72,7 +70,6 @@ export default function VideoSection() {
         </p>
       </div>
 
-      {/* Reel Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {videos.map((video, index) => (
           <div

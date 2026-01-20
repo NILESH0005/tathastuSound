@@ -8,7 +8,6 @@ export default function HeroSection() {
   const containerRef = useRef(null);
   const [ripples, setRipples] = useState([]);
 
-  // Generate random notes for background musical effect
   const generateMusicNotes = () => {
     const notes = [];
     for (let i = 0; i < 25; i++) {

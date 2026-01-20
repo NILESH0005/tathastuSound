@@ -1,4 +1,4 @@
-import tathastuSound from "../assets/tathastuSound.jpg";
+import tathastuSound from "../assets/tathastu-sound.jpg";
 
 export default function AboutSection() {
   return (
