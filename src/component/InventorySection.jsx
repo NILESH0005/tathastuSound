@@ -1,7 +1,5 @@
-import audioImg from "../assets/AudioImg.jpg";
-import lightingImg from "../assets/LightImg.webp";
-import videoImg from "../assets/VideoImg.jpg";
-import backlineImg from "../assets/BacklineImg.webp";
+import audioImg from "../assets/audio-img.jpg";
+import videoImg from "../assets/video-img.jpg";
 
 const inventory = [
   {

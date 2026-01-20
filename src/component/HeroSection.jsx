@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import logoImg from "../assets/tathastuLogo.jpeg";
+import logoImg from "../assets/tathastu-logo.jpeg";
 
 export default function HeroSection() {
   const [isPlaying, setIsPlaying] = useState(false);
