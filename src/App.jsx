@@ -1,19 +1,18 @@
-import AboutSection from "./component/AboutSection";
-import Footer from "./component/Footer";
-import HeroSection from "./component/HeroSection";
-import InventorySection from "./component/InventorySection";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./component/Navbar";
-import VideoSection from "./component/VideoSection";
+import Home from "./component/Home";
+import AudioInventory from "./component/AudioInventory";
+import LightInventory from "./component/LightInventory";
 
 export default function App() {
   return (
     <>
       <Navbar />
-      <HeroSection />
-      <VideoSection />
-      <InventorySection />
-      <AboutSection />
-      <Footer />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/inventory/audio" element={<AudioInventory />} />
+        <Route path="/inventory/light" element={<LightInventory />} />
+      </Routes>
     </>
   );
 }
