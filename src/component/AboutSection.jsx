@@ -34,17 +34,12 @@ export default function AboutSection() {
             </a>
           </div>
 
-          {/* Image + Stats */}
           <div className="relative w-full rounded-2xl overflow-hidden">
-
-            {/* Image */}
             <img
               src={tathastuSound}
               alt="Tathastu Sound Event Production"
               className="h-full w-full object-cover rounded-2xl"
             />
-
-            {/* Dark overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           </div>
         </div>
@@ -53,17 +48,3 @@ export default function AboutSection() {
   );
 }
 
-/* ---------------- STAT ITEM ---------------- */
-
-function StatItem({ value, label }) {
-  return (
-    <div className="flex flex-col items-center justify-center text-center gap-2">
-      <span className="text-purple-600 text-4xl font-extrabold">
-        {value}
-      </span>
-      <p className="text-slate-600 text-sm tracking-wide uppercase">
-        {label}
-      </p>
-    </div>
-  );
-}
