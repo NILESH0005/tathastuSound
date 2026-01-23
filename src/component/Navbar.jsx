@@ -26,11 +26,10 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-700
-      ${
-        show
+      ${show
           ? "opacity-100 translate-y-0"
           : "opacity-0 -translate-y-full pointer-events-none"
-      }`}
+        }`}
     >
       {/* 🎛 CONSOLE BAR */}
       <nav
@@ -99,7 +98,7 @@ export default function Navbar() {
                            shadow-xl mt-2"
               >
                 <DropdownItem label="Audio" to="/inventory/audio" />
-                <DropdownItem label="Light" to="/inventory/light" />
+                <DropdownItem label="Video" to="/inventory/light" />
               </div>
             )}
           </li>

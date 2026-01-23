@@ -1,5 +1,5 @@
-import engineer1 from "../assets/engineer1.jpg"; 
-import engineer2 from "../assets/engineer2.jpeg";
+import engineer1 from "../assets/engineer1.jpg";
+import engineer2 from "../assets/engineer2.jpg";
 
 
 const engineers = [
