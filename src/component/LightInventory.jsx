@@ -38,7 +38,7 @@ export default function LightInventory() {
                         </div>
                         <div>
                             <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-amber-200">
-                                Lighting Inventory
+                                Video Inventory
                             </h1>
                             <p className="text-gray-400 mt-1">Professional stage lighting & effects</p>
                         </div>

@@ -23,14 +23,9 @@ export default function ImageGalleryFull() {
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [folderLogos, setFolderLogos] = useState({});
 
-  // ------------------------------
-  // LOAD GALLERY DATA (ASYNC)
-  // ------------------------------
   useEffect(() => {
     (async () => {
       const galleryData = await importAllImages();
-
-      // Extract folder logos
       const logos = {};
       Object.keys(galleryData).forEach((folder) => {
         const logoImage = galleryData[folder].find((img) => {
@@ -46,7 +41,6 @@ export default function ImageGalleryFull() {
         if (logoImage) {
           logos[folder] = logoImage.src;
 
-          // Remove logo from gallery
           galleryData[folder] = galleryData[folder].filter(
             (img) => img !== logoImage
           );
@@ -78,13 +72,8 @@ export default function ImageGalleryFull() {
     setExpandedFolders(updated);
   };
 
-  // ------------------------------
-  // UI
-  // ------------------------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white py-6 px-4">
-
-      {/* HEADER */}
       <header className="max-w-7xl mx-auto mb-12 text-center">
         <div className="bg-gradient-to-r from-slate-800 to-slate-600 rounded-2xl p-8 shadow-2xl backdrop-blur-sm border border-white/20">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 font-poppins">
@@ -98,28 +87,20 @@ export default function ImageGalleryFull() {
 
       <div className="max-w-7xl mx-auto">
         <div className="relative">
-
-          {/* TIMELINE LINE */}
           <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full ml-4"></div>
 
-          {/* FOLDERS LIST */}
           {Object.keys(gallery).map((folder, index) => (
             <div key={folder} className="relative mb-8">
-
-              {/* TIMELINE DOT */}
               <div className="absolute left-[40px] top-[50px] z-10 -translate-x-1/2">
                 <div className="w-8 h-8 flex items-center justify-center text-white font-bold rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-4 border-white shadow-lg">
                   {index + 1}
                 </div>
               </div>
-
-              {/* FOLDER CARD */}
               <div
                 className={`glass-card rounded-2xl shadow-lg hover:shadow-xl ml-12 transition-all ${
                   expandedFolders.has(folder) ? "bg-white/30" : ""
                 }`}
               >
-                {/* HEADER */}
                 <div
                   className="p-6 cursor-pointer flex items-center justify-between hover:bg-white/30 transition rounded-2xl"
                   onClick={() => toggleFolder(folder)}
@@ -151,8 +132,6 @@ export default function ImageGalleryFull() {
                     }`}
                   />
                 </div>
-
-                {/* GALLERY GRID */}
                 {expandedFolders.has(folder) && (
                   <div className="px-6 pb-6 animate-fade-in">
                     <Masonry
@@ -191,12 +170,8 @@ export default function ImageGalleryFull() {
             </div>
           ))}
         </div>
-
-        {/* LIGHTBOX VIEWER */}
         {zoomFolder !== null && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center animate-fade-in">
-
-            {/* CLOSE BUTTON */}
             <button
               onClick={() => setZoomFolder(null)}
               className="absolute top-6 right-6 text-white group"
@@ -205,8 +180,6 @@ export default function ImageGalleryFull() {
                 <FaTimes size={24} />
               </div>
             </button>
-
-            {/* SWIPER */}
             <div className="w-full h-full max-w-6xl mx-auto px-4 py-20">
               <Swiper
                 initialSlide={zoomIndex}
@@ -234,8 +207,6 @@ export default function ImageGalleryFull() {
                           className="max-h-full max-w-full object-contain rounded-lg"
                         />
                       )}
-
-                      {/* DOWNLOAD */}
                       <a
                         href={img.src}
                         download
@@ -247,8 +218,6 @@ export default function ImageGalleryFull() {
                   </SwiperSlide>
                 ))}
               </Swiper>
-
-              {/* NAV ARROWS */}
               <div className="swiper-button-prev !text-white !w-12 !h-12 after:!text-xl glass-card rounded-full hover:bg-white/20"></div>
               <div className="swiper-button-next !text-white !w-12 !h-12 after:!text-xl glass-card rounded-full hover:bg-white/20"></div>
             </div>
@@ -256,7 +225,6 @@ export default function ImageGalleryFull() {
         )}
       </div>
 
-      {/* CSS */}
       <style jsx>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.25);

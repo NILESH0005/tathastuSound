@@ -21,14 +21,11 @@ export default function ImageGallerySwiper() {
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [folderLogos, setFolderLogos] = useState({});
 
-  // Load all images and convert HEIC → JPEG in loader
   useEffect(() => {
     (async () => {
       const data = await importAllImages();
-
       const logos = {};
       const filteredData = {};
-
       Object.keys(data).forEach((folder) => {
         const logoImage = data[folder].find(
           (img) =>
@@ -38,7 +35,6 @@ export default function ImageGallerySwiper() {
             img.src.includes("logo.svg") ||
             img.src.includes("logo.webp")
         );
-
         if (logoImage) {
           logos[folder] = logoImage.src;
           filteredData[folder] = data[folder].filter((img) => img !== logoImage);
@@ -46,7 +42,6 @@ export default function ImageGallerySwiper() {
           filteredData[folder] = data[folder];
         }
       });
-
       setFolderLogos(logos);
       setGallery(filteredData);
     })();
@@ -74,10 +69,8 @@ export default function ImageGallerySwiper() {
 
       <div className="max-w-7xl mx-auto">
         <div className="relative">
-          {/* Timeline Line */}
           <div className="absolute left-4 sm:left-6 md:left-[24px] top-0 bottom-0 w-0.5 sm:w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
 
-          {/* Folders */}
           {Object.keys(gallery).map((folder, index) => (
             <div key={folder} className="relative mb-8 sm:mb-10">
               <div
@@ -85,16 +78,13 @@ export default function ImageGallerySwiper() {
                   expandedFolders.has(folder) ? "bg-white/30" : ""
                 }`}
               >
-                {/* Folder Header */}
                 <div
                   className="p-4 sm:p-6 cursor-pointer flex items-center justify-between hover:bg-white/20 transition-all duration-200 rounded-xl sm:rounded-2xl"
                   onClick={() => toggleFolder(folder)}
                 >
                   <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                    {/* Timeline Dot */}
                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 sm:border-4 border-white shadow-md flex-shrink-0"></div>
 
-                    {/* Folder Logo */}
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border-2 border-white bg-white shadow-md">
                       {folderLogos[folder] ? (
                         <LazyLoadImage
@@ -110,7 +100,6 @@ export default function ImageGallerySwiper() {
                       )}
                     </div>
 
-                    {/* Folder Title */}
                     <div className="min-w-0 flex-1">
                       <h3 className="text-lg sm:text-xl font-semibold text-slate-800 font-inter truncate">
                         {folder.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
@@ -129,7 +118,6 @@ export default function ImageGallerySwiper() {
                   />
                 </div>
 
-                {/* Grid of Images */}
                 {expandedFolders.has(folder) && (
                   <div className="px-4 sm:px-6 pb-4 sm:pb-6 animate-fade-in">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -166,18 +154,14 @@ export default function ImageGallerySwiper() {
           ))}
         </div>
 
-        {/* Lightbox Modal */}
         {zoomFolder !== null && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center animate-fade-in">
-            {/* Close Button */}
             <button
               onClick={() => setZoomFolder(null)}
               className="absolute top-6 right-6 p-3 rounded-full glass-card hover:bg-white/20"
             >
               <FaTimes size={24} className="text-white" />
             </button>
-
-            {/* Swiper Viewer */}
             <div className="w-full h-full max-w-6xl mx-auto px-4 py-20">
               <Swiper
                 initialSlide={zoomIndex}
@@ -210,14 +194,12 @@ export default function ImageGallerySwiper() {
         )}
       </div>
 
-      {/* Extra CSS */}
       <style jsx>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -228,7 +210,6 @@ export default function ImageGallerySwiper() {
             transform: translateY(0);
           }
         }
-
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
         }

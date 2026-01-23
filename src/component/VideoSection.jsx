@@ -4,19 +4,19 @@ const videos = [
   {
     id: 1,
     title: "Live Concert Setup",
-    mp4Url: "/GIPhotoGallery/videos/LiveConcert.mp4",
+    mp4Url: "/videos/LiveConcert.mp4",
     instagramUrl: "https://www.instagram.com/reel/DTSa6E6iMwx/",
   },
   {
     id: 2,
     title: "Wedding Sound & Lights",
-    mp4Url: "/GIPhotoGallery/videos/Wedding.mp4",
+    mp4Url: "/videos/Wedding.mp4",
     instagramUrl: "https://www.instagram.com/reel/DSVVmbLDWbA/",
   },
   {
     id: 3,
     title: "DJ Night Experience",
-    mp4Url: "/GIPhotoGallery/videos/DJ.mp4",
+    mp4Url: "/videos/DJ.mp4",
     instagramUrl: "https://www.instagram.com/reel/DTmx1ElEYuL/",
   },
 ];
@@ -37,7 +37,7 @@ export default function VideoSection() {
           }
         });
       },
-      { threshold: 0.6 }
+      { threshold: 0.6 },
     );
 
     videoRefs.current.forEach((video) => {
@@ -74,11 +74,7 @@ export default function VideoSection() {
         {videos.map((video, index) => (
           <div
             key={video.id}
-            className="relative group rounded-3xl overflow-hidden shadow-2xl 
-                       bg-gradient-to-br from-purple-900/20 to-blue-900/20 
-                       hover:scale-[1.02] transition-all duration-500"
-          >
-            {/* 🎥 Video */}
+            className="relative group rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 hover:scale-[1.02] transition-all duration-500" >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
               src={video.mp4Url}
@@ -88,28 +84,30 @@ export default function VideoSection() {
               className="w-full h-[480px] object-cover"
             />
 
-            {/* 🌈 Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent 
-                            opacity-70 group-hover:opacity-90 transition-all duration-500" />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent 
+                            opacity-70 group-hover:opacity-90 transition-all duration-500"
+            />
 
-            {/* 🏷 Title */}
             <div className="absolute bottom-5 left-5 right-5 z-10">
               <h3 className="text-white text-xl font-semibold tracking-wide drop-shadow-lg">
                 {video.title}
               </h3>
             </div>
 
-            {/* ▶ Hover Play Glow */}
-            <div className="absolute inset-0 flex items-center justify-center 
-                            opacity-0 group-hover:opacity-100 transition-all duration-500 z-10">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md 
+            <div
+              className="absolute inset-0 flex items-center justify-center 
+                            opacity-0 group-hover:opacity-100 transition-all duration-500 z-10"
+            >
+              <div
+                className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md 
                               flex items-center justify-center text-white text-3xl 
-                              shadow-lg">
+                              shadow-lg"
+              >
                 ▶
               </div>
             </div>
 
-            {/* 🔊 Mute / Unmute */}
             <button
               onClick={() => toggleMute(index)}
               className="absolute top-4 left-4 z-20 
@@ -120,7 +118,6 @@ export default function VideoSection() {
               {mutedMap[index] === false ? "🔊" : "🔇"}
             </button>
 
-            {/* 📸 Instagram Link */}
             <a
               href={video.instagramUrl}
               target="_blank"

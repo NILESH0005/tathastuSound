@@ -26,7 +26,6 @@ export default function HeroSection() {
 
   const [audioElements, setAudioElements] = useState(generateMusicNotes());
 
-  // Create ripple effect on hover
   const createRipple = (x, y, color = "rgba(168, 85, 247, 0.3)") => {
     const newRipple = {
       id: Date.now(),
@@ -38,7 +37,6 @@ export default function HeroSection() {
     };
     setRipples((prev) => [...prev, newRipple]);
 
-    // Animate ripple
     const interval = setInterval(() => {
       setRipples((prev) =>
         prev.map((r) =>
@@ -53,7 +51,6 @@ export default function HeroSection() {
     }, 1000);
   };
 
-  // Mouse move effect for parallax
   const handleMouseMove = (e) => {
     if (!containerRef.current) return;
 
@@ -63,7 +60,6 @@ export default function HeroSection() {
     setMousePosition({ x, y });
   };
 
-  // Interactive hover effects
   const handleElementHover = (element, e) => {
     setHoveredElement(element);
     const rect = e.currentTarget.getBoundingClientRect();
@@ -87,9 +83,7 @@ export default function HeroSection() {
       className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0a0a0a] via-[#0f0c19] to-[#0a0a0a]"
       onMouseMove={handleMouseMove}
     >
-      {/* Dynamic Parallax Background */}
       <div className="absolute inset-0">
-        {/* Animated gradient mesh */}
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -101,7 +95,6 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* Animated Sound Waves with mouse interaction */}
       <div className="absolute inset-0 flex items-center justify-center opacity-5">
         {[...Array(20)].map((_, i) => {
           const distance = Math.abs((i / 20) * 100 - mousePosition.y);
@@ -125,7 +118,6 @@ export default function HeroSection() {
         })}
       </div>
 
-      {/* Background Layers with Parallax */}
       <div
         className="absolute inset-0 transition-transform duration-700"
         style={{
@@ -150,7 +142,6 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* Interactive Ripple Effects */}
       {ripples.map((ripple) => (
         <div
           key={ripple.id}
@@ -168,7 +159,6 @@ export default function HeroSection() {
         />
       ))}
 
-      {/* Musical Notes with dynamic hover */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {audioElements.map((note) => (
           <div
